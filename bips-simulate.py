@@ -14,10 +14,10 @@ import math
 
 
 #constants definition
-d=3
+d=2
 n=100000
 k=2
-simulations_per_degree = 5
+simulations_per_degree = 100
 degree_expInfecTime_map = dict()
 plt.close()
 
@@ -36,15 +36,18 @@ while d <= round(n**(1/3)):
         #************** Construct a random regular graph **************#
         n_trials=0
         print('\nGenerating regular graph of %d nodes and degree %d....' %(n,d))
-        while True:
-            G = nx.random_regular_graph(d, n)
-            if nx.is_connected(G):
-                break
-            else:
-                n_trials += 1
-                print('Graph is not connected. Trying to generate another graph...')
-                if n_trials > 30:
-                    sys.exit('Could not construct a connected regular graph with the given degree, node size!')
+        if d == 2:  #using nx.random_regular_graph() with d=2 does not generate connected graph most of the time
+            G = nx.cycle_graph(n)
+        else:
+            while True:
+                G = nx.random_regular_graph(d, n)
+                if nx.is_connected(G):
+                    break
+                else:
+                    n_trials += 1
+                    print('Graph is not connected. Trying to generate another graph...')
+                    if n_trials > 20:
+                        sys.exit('Could not construct a connected regular graph with the given degree, node size!')
         print('Done generating a connected graph.')       
         
         all_nodes = list(G.nodes())
@@ -54,6 +57,7 @@ while d <= round(n**(1/3)):
         
         
         #******************* Begining of the k-BIPS process *******************#
+        print('%d-BIPS process is running now...'%k)
         while(len(infected_set) != n):
             prev_infec_set_size = len(infected_set)
             newly_infected = set()
