@@ -7,6 +7,7 @@ Created on Sat Mar 30 14:47:49 2019
 """
 
 import matplotlib.pyplot as plt
+from pylab import MaxNLocator
 import networkx as nx
 import random
 import sys
@@ -15,20 +16,22 @@ import math
 
 #constants definition
 d=2
-n=100000
+n=10000
 k=2
-simulations_per_degree = 100
+simulations_per_degree = 50
 degree_expInfecTime_map = dict()
+degree_netIncrease_map = dict()
 plt.close()
 
 y_ticks = [math.log2(math.log2(n)), math.log2(n), math.log2(n)**2, n]
-y_ticks_labels = ['log log n', 'log n', '$log^2 n$', 'n']
+y_ticks_labels = ['$\log\ \log\ n$', '$\log\ n$', '$\log^2\ n$', '$n$']
 
 #fix n and k. vary d to see its effect
 while d <= round(n**(1/3)):
 #the condition on the degree being O(n^(1/3)) is to guarantee the asymptotic uniform sampling from the space of random graphs,
 # according to the documentation: https://networkx.github.io/documentation/networkx-1.10/reference/generated/networkx.generators.random_graphs.random_regular_graph.html
     infection_times_per_degree = []
+    net_increases_per_degree = []
     for s in range(simulations_per_degree):
         t=0
         infected_set = set()
@@ -58,6 +61,7 @@ while d <= round(n**(1/3)):
         
         #******************* Begining of the k-BIPS process *******************#
         print('%d-BIPS process is running now...'%k)
+        net_increase_per_round = []
         while(len(infected_set) != n):
             prev_infec_set_size = len(infected_set)
             newly_infected = set()
@@ -82,12 +86,14 @@ while d <= round(n**(1/3)):
             for node in newly_uninfected:
                 infected_set.remove(node)
             #print('End of round %d, Number of infected nodes is %d (Net Increase: %d).' %(t, len(infected_set), len(infected_set)-prev_infec_set_size))
-            
+            net_increase_per_round.append(len(infected_set)-prev_infec_set_size)
         
         print('\nNumber of rounds until %d nodes are infected: %d' %(n, t))
         infection_times_per_degree.append(t)
+        net_increases_per_degree.append(net_increase_per_round)
         
     degree_expInfecTime_map[d] = round((sum(infection_times_per_degree) / len(infection_times_per_degree)))
+    degree_netIncrease_map[d] = net_increases_per_degree
     #increase d
     if d <= 5:
         d += 1
@@ -98,6 +104,7 @@ while d <= round(n**(1/3)):
     else:
         d += 6
         
+fig1 = plt.figure(1, figsize=(9,7.2))
 plt.plot(degree_expInfecTime_map.keys(), degree_expInfecTime_map.values(), 'b--')
 plt.yscale('log')
 plt.yticks(y_ticks, y_ticks_labels)
@@ -105,5 +112,31 @@ plt.xlabel('Node degree')
 plt.ylabel('Expected infection time (in rounds)\nlogarithmic scale')
 plt.title('k=%d, n=%d'%(k,n))
 plt.grid(True)
+fig1.show()
+fig1.savefig('bips_variable_degree_k'+str(k)+'_n'+str(n)+'.png', bbox_inches='tight')
+
+fig_idx = 2
+subfig_idx = 1
+for deg in degree_netIncrease_map.keys():
+    fig = plt.figure(fig_idx, figsize=(18,14))
+    ax = fig.add_subplot(2, 3, subfig_idx)
+    xa = ax.get_xaxis()
+    xa.set_major_locator(MaxNLocator(integer=True))
+    plt.xlabel('Rounds until graph infection')
+    plt.ylabel('Net increase of infected nodes per round')
+    num_plots = 0
+    for inc_lst in degree_netIncrease_map[deg]:
+        ax.plot(range(1, len(inc_lst)+1), inc_lst)
+        num_plots += 1
+        if num_plots == 5:
+            break   #drwing all plots makes the plot not visible
+    plt.title('degree=%d'%deg)
+    if subfig_idx==6:
+        fig_idx += 1
+        subfig_idx = 1
+        fig.savefig('bips_net_increase_per_round_k'+str(k)+'_n'+str(n)+'_figidx'+str(fig_idx-1)+'.png', bbox_inches='tight')
+        break   #to plot the remaining degrees, comment this line 
+    else:
+        subfig_idx += 1
 plt.show()
-plt.savefig('bips_variable_degree_k'+str(k)+'_n'+str(n)+'.png', bbox_inches='tight')
+        
