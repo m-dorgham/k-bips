@@ -18,7 +18,7 @@ import math
 d=2
 n=10000
 k=2
-simulations_per_degree = 50
+simulations_per_degree = 20
 degree_expInfecTime_map = dict()
 degree_netIncrease_map = dict()
 plt.close()
@@ -26,6 +26,7 @@ plt.close()
 y_ticks = [math.log2(math.log2(n)), math.log2(n), math.log2(n)**2, n]
 y_ticks_labels = ['$\log\ \log\ n$', '$\log\ n$', '$\log^2\ n$', '$n$']
 
+third_n = n/3
 #fix n and k. vary d to see its effect
 while d <= round(n**(1/3)):
 #the condition on the degree being O(n^(1/3)) is to guarantee the asymptotic uniform sampling from the space of random graphs,
@@ -68,17 +69,33 @@ while d <= round(n**(1/3)):
             newly_uninfected = set()
             t += 1
             
+            if prev_infec_set_size < third_n:
+                nodes_to_loop_over = set(infected_set)
+                for v in infected_set:
+                    for u in G.neighbors(v):
+                        nodes_to_loop_over.add(u)
+            else:
+                nodes_to_loop_over = set(all_nodes)
             #each node samples k random neighbors
-            for node in all_nodes:
+            for node in nodes_to_loop_over:
                 if node == persistent_node:
                     continue
                 neighbors = list(G.neighbors(node))
+                has_infected_neighbor = False
+                if node not in infected_set:
+                    for v in neighbors:
+                        if v in infected_set:
+                            has_infected_neighbor = True
+                            break
+                    if not has_infected_neighbor:
+                        continue    #no need to sample neighbors of this node
                 sampled_infected_neighbor = False
                 for _ in range(k):
                     sampled_neighbor = random.choice(neighbors)
                     if sampled_neighbor in infected_set:
                         newly_infected.add(node)
                         sampled_infected_neighbor = True
+                        break
                 if not sampled_infected_neighbor and node in infected_set:
                     newly_uninfected.add(node)
                 
@@ -92,6 +109,9 @@ while d <= round(n**(1/3)):
         infection_times_per_degree.append(t)
         net_increases_per_degree.append(net_increase_per_round)
         
+        if d==2:
+            break
+        
     degree_expInfecTime_map[d] = round((sum(infection_times_per_degree) / len(infection_times_per_degree)))
     degree_netIncrease_map[d] = net_increases_per_degree
     #increase d
@@ -102,12 +122,15 @@ while d <= round(n**(1/3)):
     elif d <= 20:
         d += 4
     else:
-        d += 6
+        d += 10
+        
         
 fig1 = plt.figure(1, figsize=(9,7.2))
 plt.plot(degree_expInfecTime_map.keys(), degree_expInfecTime_map.values(), 'b--')
 plt.yscale('log')
 plt.yticks(y_ticks, y_ticks_labels)
+xa = plt.gca().get_xaxis()
+xa.set_major_locator(MaxNLocator(integer=True))
 plt.xlabel('Node degree')
 plt.ylabel('Expected infection time (in rounds)\nlogarithmic scale')
 plt.title('k=%d, n=%d'%(k,n))
@@ -135,7 +158,7 @@ for deg in degree_netIncrease_map.keys():
         fig_idx += 1
         subfig_idx = 1
         fig.savefig('bips_net_increase_per_round_k'+str(k)+'_n'+str(n)+'_figidx'+str(fig_idx-1)+'.png', bbox_inches='tight')
-        break   #to plot the remaining degrees, comment this line 
+        #break   #to plot the remaining degrees, comment this line 
     else:
         subfig_idx += 1
 plt.show()
