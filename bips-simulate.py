@@ -152,10 +152,10 @@ if vary_k:
         fig1 = plt.figure(fig_idx, figsize=(9,7.2))
         if d == 2:
             plt.plot(k_avgInfecTime_map.keys(), k_avgInfecTime_map.values(), 'b--', label='average infection time')
-            plt.plot(k_avgInfecTime_map.keys(), [n/ math.log2(i) for i in k_avgInfecTime_map.keys()], 'r-', label='$n\ /\log\ k$')
+            plt.plot(k_avgInfecTime_map.keys(), [n/ math.log2(i) for i in k_avgInfecTime_map.keys()], 'r-', label='$n\ /\ \log\ k$')
         else:
            plt.plot(k_avgInfecTime_map.keys(), k_avgInfecTime_map.values(), 'b--', label='average infection time')
-           plt.plot(k_avgInfecTime_map.keys(), [math.log2(n)/ math.log2(i) for i in k_avgInfecTime_map.keys()], 'r-', label='$\log\ n\ /\log\ k$')
+           plt.plot(k_avgInfecTime_map.keys(), [math.log2(n)/ math.log2(i) for i in k_avgInfecTime_map.keys()], 'r-', label='$\log\ n\ /\ \log\ k$')
         plt.yscale('log')
         plt.yticks(y_ticks, y_ticks_labels)
         xa = plt.gca().get_xaxis()
@@ -175,7 +175,7 @@ if vary_k:
         fig_idx += 1
         subfig_idx = 1
         for br_factor in k_netIncrease_map.keys():
-            fig = plt.figure(fig_idx, figsize=(18,14))
+            fig = plt.figure(fig_idx, figsize=(20,16))
             ax = fig.add_subplot(2, 3, subfig_idx)
             xa = ax.get_xaxis()
             xa.set_major_locator(MaxNLocator(integer=True))
