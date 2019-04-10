@@ -9,6 +9,7 @@ Created on Sat Mar 30 14:47:49 2019
 import matplotlib.pyplot as plt
 from pylab import MaxNLocator
 from IPython import get_ipython
+from collections import OrderedDict
 import networkx as nx
 import random
 import sys
@@ -25,9 +26,9 @@ plt.close()
 
 #constants definition
 d=2
-n=1000000
+n=100000
 k=2
-simulations_repetition = 20
+simulations_repetition = 10
 max_increase = 0
 longest_process_len = 0
 fig_idx = 1
@@ -37,15 +38,14 @@ fig_idx = 1
 ###############################################################################
 
 if vary_k:
-    k_avgInfecTime_map = dict()
-    k_netIncrease_map = dict()
-    k_factor = 10
+    k_avgInfecTime_map = OrderedDict()
+    k_netIncrease_map = OrderedDict()
     y_ticks = [math.log2(n), math.log2(n)**2, n]
     y_ticks_labels = ['$\log\ n$', '$\log^2\ n$', 'n']
     
-    while d < n:     #repeat the simulations for different degrees
+    while d < round(n**(1/3)):     #repeat the simulations for different degrees
         k = 2
-        while k <= k_factor*d:     #fix n and d. vary k to see its effect
+        while k <= 10*d:     #fix n and d. vary k to see its effect
             infection_times_per_k = []
             net_increases_per_k = []
             for s in range(simulations_repetition):
@@ -165,7 +165,6 @@ if vary_k:
         plt.title('n=%d, d=%d'%(n,d))
         plt.grid(True)
         plt.legend(loc='best')
-        fig1.show()
         fig1.savefig('bips_variable_branching_d'+str(d)+'_n'+str(n)+'.png', bbox_inches='tight')
         plt.close(fig1)
         
@@ -223,11 +222,8 @@ if vary_k:
         
         if d < 5:
             d += 1
-        elif d < round(n**(1/3)):
-            d += 5
         else:
-            d = n-1 #for the complete graph
-            k_factor = 1
+            d += 5
         
         longest_process_len = 0
         max_increase = 0
@@ -236,8 +232,8 @@ if vary_k:
 ####                      fixing k, and varying d                         #####
 ###############################################################################
 else:
-    k_avgInfecTime_map = dict()
-    k_netIncrease_map = dict()
+    k_avgInfecTime_map = OrderedDict()
+    k_netIncrease_map = OrderedDict()
     
     y_ticks = [math.log2(math.log2(n)), math.log2(n), math.log2(n)**2, n]
     y_ticks_labels = ['$\log\ \log\ n$', '$\log\ n$', '$\log^2\ n$', 'n']
