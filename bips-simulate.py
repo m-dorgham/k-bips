@@ -25,7 +25,7 @@ if ipy is not None:
 plt.close()
 
 #constants definition
-d=2
+d=3
 n=100000
 k=2
 simulations_repetition = 10
@@ -149,6 +149,11 @@ if vary_k:
                 k += 20
                 
                 
+        if d != 2:
+            y_ticks = [math.log2(math.log2(n)), math.log2(n), math.log2(n)**2]
+            y_ticks_labels = ['$\log\ \log\ n$', '$\log\ n$', '$\log^2\ n$']
+            
+            
         fig1 = plt.figure(fig_idx, figsize=(9,7.2))
         if d == 2:
             plt.plot(k_avgInfecTime_map.keys(), k_avgInfecTime_map.values(), 'b--', label='average infection time')
@@ -168,10 +173,7 @@ if vary_k:
         fig1.savefig('bips_variable_branching_d'+str(d)+'_n'+str(n)+'.png', bbox_inches='tight')
         plt.close(fig1)
         
-        if d == 2:
-            y_ticks = [math.log2(math.log2(n)), math.log2(n), math.log2(n)**2]
-            y_ticks_labels = ['$\log\ \log\ n$', '$\log\ n$', '$\log^2\ n$']
-            
+        
         fig_idx += 1
         subfig_idx = 1
         for br_factor in k_netIncrease_map.keys():
@@ -216,9 +218,6 @@ if vary_k:
             fig_idx += 1
         plt.close(fig)
         
-                
-        if d == n-1:
-            break
         
         if d < 5:
             d += 1
