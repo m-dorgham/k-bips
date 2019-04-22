@@ -25,7 +25,7 @@ if ipy is not None:
 plt.close()
 
 
-n=1000
+n_0 = n = 1000
 k=2
 simulations_repetition = 10
 max_increase = 0
@@ -40,7 +40,7 @@ y_ticks_labels = ['$\log\ \log\ n$', '$\log\ n$', '$\log^2\ n$']
 
 G_neighbors = dict()
 
-while n < 10*n:
+while n < 10*n_0:
     infection_times_per_d = []
     net_increases_per_d = []
     
