@@ -25,7 +25,7 @@ if ipy is not None:
 plt.close()
 
 
-n_0 = n = 1000
+n = 10000
 k=2
 simulations_repetition = 10
 max_increase = 0
@@ -33,42 +33,43 @@ longest_process_len = 0
 fig_idx = 1
 
 
-d_avgInfecTime_map = OrderedDict()
-d_netIncrease_map = OrderedDict()
-y_ticks = [math.log2(math.log2(n)), math.log2(n), math.log2(n)**2]
-y_ticks_labels = ['$\log\ \log\ n$', '$\log\ n$', '$\log^2\ n$']
+k_avgInfecTime_map = OrderedDict()
+k_netIncrease_map = OrderedDict()
+y_ticks = [math.log2(math.log2(n)), math.log2(n), math.log2(n)**2, n]
+y_ticks_labels = ['$\log\ \log\ n$', '$\log\ n$', '$\log^2\ n$', 'n']
 
 G_neighbors = dict()
 
-while n < 10*n_0:
-    infection_times_per_d = []
-    net_increases_per_d = []
-    
-    print('\nGenerating barbell-like regular graph of %d nodes....' %(2*n))
-    G1_nodes = [v for v in range(n)]
-    G2_nodes = [v for v in range(n,2*n)]
-    
-    for node in G1_nodes:
-        G_neighbors[node] = [v for v in G1_nodes if v != node]
-    for node in G2_nodes:
-        G_neighbors[node] = [v for v in G2_nodes if v != node]
+print('\nGenerating barbell-like regular graph of %d nodes....' %(n))
+G1_nodes = [v for v in range(int(n/2))]
+G2_nodes = [v for v in range(int(n/2), n)]
 
-    #remove_edge(0,1)
-    G_neighbors[0].remove(1)
-    G_neighbors[1].remove(0)
-    #remove_edge(n,n+1)
-    G_neighbors[n].remove(n+1)
-    G_neighbors[n+1].remove(n)
-    #add_edge(0,n)
-    G_neighbors[0].append(n)
-    G_neighbors[n].append(0)
-    #add_edge(1,n+1)
-    G_neighbors[1].append(n+1)
-    G_neighbors[n+1].append(1)
-    print('Done generating the graph.')  
-    all_nodes = list(G_neighbors.keys())
-    
-    gc.collect()
+for node in G1_nodes:
+    G_neighbors[node] = [v for v in G1_nodes if v != node]
+for node in G2_nodes:
+    G_neighbors[node] = [v for v in G2_nodes if v != node]
+
+#remove_edge(0,1)
+G_neighbors[0].remove(1)
+G_neighbors[1].remove(0)
+#remove_edge(n,n+1)
+G_neighbors[int(n/2)].remove(int(n/2)+1)
+G_neighbors[int(n/2)+1].remove(int(n/2))
+#add_edge(0,n)
+G_neighbors[0].append(int(n/2))
+G_neighbors[int(n/2)].append(0)
+#add_edge(1,n+1)
+G_neighbors[1].append(int(n/2)+1)
+G_neighbors[int(n/2)+1].append(1)
+print('Done generating the graph.')  
+all_nodes = list(G_neighbors.keys())
+
+del G1_nodes, G2_nodes
+gc.collect()
+
+while k <= n:
+    infection_times_per_k = []
+    net_increases_per_k = []
     
     for s in range(simulations_repetition):
         t=0
@@ -126,31 +127,31 @@ while n < 10*n_0:
             if len(infected_set)-prev_infec_set_size > max_increase:
                 max_increase = len(infected_set)-prev_infec_set_size
         
-        print('Number of rounds until %d nodes are infected: %d' %(n, t))
-        infection_times_per_d.append(t)
-        net_increases_per_d.append(net_increase_per_round)
+        print('Number of rounds until %d nodes are infected: %d\n' %(n, t))
+        infection_times_per_k.append(t)
+        net_increases_per_k.append(net_increase_per_round)
         if t > longest_process_len:
             longest_process_len = t
         
-    d_avgInfecTime_map[2*n] = round((sum(infection_times_per_d) / len(infection_times_per_d)))
-    d_netIncrease_map[2*n] = net_increases_per_d
+    k_avgInfecTime_map[k] = round((sum(infection_times_per_k) / len(infection_times_per_k)))
+    k_netIncrease_map[k] = net_increases_per_k
             
-    n += 1000
+    k *= 2
     
     
 fig1 = plt.figure(fig_idx, figsize=(9,7.2))
-plt.plot(d_avgInfecTime_map.keys(), d_avgInfecTime_map.values(), 'b--', label='average infection time')
-#plt.plot(d_avgInfecTime_map.keys(), [math.log2(n)/ math.log2(i) for i in d_avgInfecTime_map.keys()], 'r-', label='$\log\ n\ /\ \log\ k$')
+plt.plot(k_avgInfecTime_map.keys(), k_avgInfecTime_map.values(), 'b--', label='average infection time')
+plt.plot(k_avgInfecTime_map.keys(), [math.log2(n)**2/ math.log2(i)**2 for i in k_avgInfecTime_map.keys()], 'r-', label='$\log^2\ n\ /\ \log^2\ k$')
 plt.yscale('log')
 plt.yticks(y_ticks, y_ticks_labels)
 xa = plt.gca().get_xaxis()
 xa.set_major_locator(MaxNLocator(integer=True))
-plt.xlabel('Number of nodes (n)')
+plt.xlabel('Branching factor (k)')
 plt.ylabel('Average infection time (in rounds)\nlogarithmic scale')
-plt.title('%d-BIPS on Barbell-like regular graphs'%k)
+plt.title('k-BIPS on Barbell-like regular graphs')
 plt.grid(True)
 plt.legend(loc='best')
-fig1.savefig('bips_barbell-like_variable_degree_k'+str(k)+'.png', bbox_inches='tight')
+fig1.savefig('bips_barbell-like_fixed-d_n'+str(n)+'.png', bbox_inches='tight')
 plt.close(fig1)
 
     
