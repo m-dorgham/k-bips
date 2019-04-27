@@ -159,7 +159,7 @@ if vary_d:
             
         d_avgInfecTime_map[d] = round((sum(infection_times_per_d) / len(infection_times_per_d)))
         d_netIncrease_map[d] = net_increases_per_d
-                
+        
         if d < 0.6*block_size:
             d += 4
         elif d < block_size-1:
@@ -176,6 +176,7 @@ if vary_d:
     xa = plt.gca().get_xaxis()
     xa.set_major_locator(MaxNLocator(integer=True))
     plt.xlabel('Degree (d)')
+    plt.xlim(3, block_size)
     plt.ylabel('Average infection time (in rounds)\nlogarithmic scale')
     plt.title('%d-BIPS on Barbell-like regular graphs'%k)
     plt.grid(True)
