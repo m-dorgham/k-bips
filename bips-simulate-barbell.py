@@ -160,8 +160,12 @@ if vary_d:
         d_avgInfecTime_map[d] = round((sum(infection_times_per_d) / len(infection_times_per_d)))
         d_netIncrease_map[d] = net_increases_per_d
         
-        if d < 0.6*block_size:
+        if d < 0.1*block_size:
             d += 4
+        elif d < 0.3*block_size:
+            d += 10
+        elif d < 0.6*block_size:
+            d += 20
         elif d < block_size-1:
             d = block_size-1
         else:
