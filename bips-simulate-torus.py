@@ -7,7 +7,7 @@ Created on Sun Apr 21 15:14:37 2019
 """
 
 ###############################################################################
-####                k-BIPS simulations for hypercube graphs               #####
+####            k-BIPS simulations for toroidal graphs                    #####
 ###############################################################################
 
 import matplotlib.pyplot as plt
@@ -25,8 +25,10 @@ if ipy is not None:
 plt.close()
 
 
-d = 18
-n=2**d
+dim = 1
+n_rows=200
+n_cols=200
+n=n_rows*n_cols
 k=2
 simulations_repetition = 10
 max_increase = 0
@@ -36,19 +38,19 @@ fig_idx = 1
 
 k_avgInfecTime_map = OrderedDict()
 k_netIncrease_map = OrderedDict()
-y_ticks = [math.log2(math.log2(n)), math.log2(n), math.log2(n)**2]
-y_ticks_labels = ['$\log\ \log\ n$', '$\log\ n$', '$\log^2\ n$']
+y_ticks = [math.log2(n), math.log2(n)**2]
+y_ticks_labels = ['$\log\ n$', '$\log^2\ n$']
 
 
-print('\nGenerating hypercube graph of %d nodes and degree %d....' %(n,d))
+print('\nGenerating %d-D toroidal grid graph of %d nodes....' %(dim+1,n))
 
-G=nx.hypercube_graph(d)
+G=nx.grid_graph(dim=[dim, n_rows, n_cols], periodic=True)
 
 print('Done generating the graph.')  
 all_nodes = list(G.nodes)
 
 
-while k <= d:
+while k <= 6:
     infection_times_per_k = []
     net_increases_per_k = []
     
@@ -108,7 +110,7 @@ while k <= d:
             if len(infected_set)-prev_infec_set_size > max_increase:
                 max_increase = len(infected_set)-prev_infec_set_size
         
-        print('Number of rounds until %d nodes are infected: %d\n' %(len(all_nodes), t))
+        print('Number of rounds until %d nodes are infected: %d\n' %(n, t))
         infection_times_per_k.append(t)
         net_increases_per_k.append(net_increase_per_round)
         if t > longest_process_len:
@@ -129,10 +131,10 @@ xa = plt.gca().get_xaxis()
 xa.set_major_locator(MaxNLocator(integer=True))
 plt.xlabel('Branching factor (k)')
 plt.ylabel('Average infection time (in rounds)\nlogarithmic scale')
-plt.title('k-BIPS on hypercube graph with degree %d and %d nodes'%(d,n))
+plt.title('k-BIPS on %d-D toroidal grid graph with %d nodes'%(dim+1,n))
 plt.grid(True)
 #plt.legend(loc='best')
-fig1.savefig('bips_hypercube_fixed-d_n'+str(len(all_nodes))+'.png', bbox_inches='tight')
+fig1.savefig('bips_toroidal_fixed-d_n'+str(n)+'.png', bbox_inches='tight')
 plt.close(fig1)
 
     
