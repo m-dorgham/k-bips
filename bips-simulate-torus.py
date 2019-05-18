@@ -47,7 +47,7 @@ print('Done generating the graph.')
 all_nodes = list(G.nodes)
 
 
-while k <= 6:
+while k <= 8:
     infection_times_per_k = []
     net_increases_per_k = []
     
@@ -127,7 +127,7 @@ plt.yticks(y_ticks, y_ticks_labels)
 xa = plt.gca().get_xaxis()
 xa.set_major_locator(MaxNLocator(integer=True))
 plt.xlabel('Branching factor (k)')
-plt.ylabel('Average infection time (in rounds)\nlogarithmic scale')
+plt.ylabel('Average infection time (in rounds)')
 plt.title('k-BIPS on $[0,N]^d$ toroidal graph with N=%d and d=%d'%(N, dim))
 plt.grid(True)
 #plt.legend(loc='best')
