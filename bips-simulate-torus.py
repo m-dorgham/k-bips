@@ -25,32 +25,29 @@ if ipy is not None:
 plt.close()
 
 
-dim = 1
-n_rows=400
-n_cols=400
-n=n_rows*n_cols
+dim = 4
+N=100
 k=2
 simulations_repetition = 10
 max_increase = 0
 longest_process_len = 0
-fig_idx = 1
 
 
 k_avgInfecTime_map = OrderedDict()
 k_netIncrease_map = OrderedDict()
-y_ticks = [math.log2(n), math.log2(n)**2, math.log2(n)**3]
-y_ticks_labels = ['$\log\ n$', '$\log^2\ n$', '$\log^3\ n$']
+y_ticks = [math.log2(N)**2, N, dim*N]
+y_ticks_labels = ['$\log^2\ N$', 'N', '$d\ N$']
 
 
-print('\nGenerating %d-D toroidal grid graph of %d nodes....' %(dim+1,n))
+print('\nGenerating [0,N]^d toroidal graph with N=%d and d=%d....' %(N,dim))
 
-G=nx.grid_graph(dim=[dim, n_rows, n_cols], periodic=True)
+G=nx.grid_graph(dim=[dim-1, N, N], periodic=True)
 
 print('Done generating the graph.')  
 all_nodes = list(G.nodes)
 
 
-while k <= 4:
+while k <= 6:
     infection_times_per_k = []
     net_increases_per_k = []
     
@@ -110,7 +107,7 @@ while k <= 4:
             if len(infected_set)-prev_infec_set_size > max_increase:
                 max_increase = len(infected_set)-prev_infec_set_size
         
-        print('Number of rounds until %d nodes are infected: %d\n' %(n, t))
+        print('Number of rounds until %d nodes are infected: %d\n' %(len(all_nodes), t))
         infection_times_per_k.append(t)
         net_increases_per_k.append(net_increase_per_round)
         if t > longest_process_len:
@@ -122,19 +119,19 @@ while k <= 4:
     k += 1
     
     
-fig1 = plt.figure(fig_idx, figsize=(9,7.2))
+fig1 = plt.figure(1, figsize=(9,7.2))
 plt.plot(k_avgInfecTime_map.keys(), k_avgInfecTime_map.values(), 'b--', label='average infection time')
-plt.plot(k_avgInfecTime_map.keys(), [math.log2(n)**2/ math.log2(i) for i in k_avgInfecTime_map.keys()], 'g-', label='$\log^2\ n\ /\ \log\ k$')
-plt.yscale('log')
+#plt.plot(k_avgInfecTime_map.keys(), [math.log2(n)**2/ math.log2(i) for i in k_avgInfecTime_map.keys()], 'g-', label='$\log^2\ n\ /\ \log\ k$')
+#plt.yscale('log')
 plt.yticks(y_ticks, y_ticks_labels)
 xa = plt.gca().get_xaxis()
 xa.set_major_locator(MaxNLocator(integer=True))
 plt.xlabel('Branching factor (k)')
 plt.ylabel('Average infection time (in rounds)\nlogarithmic scale')
-plt.title('k-BIPS on %d-D toroidal grid graph with %d nodes'%(dim+1,n))
+plt.title('k-BIPS on $[0,N]^d$ toroidal graph with N=%d and d=%d'%(N, dim))
 plt.grid(True)
-plt.legend(loc='best')
-fig1.savefig('bips_toroidal_fixed-d_n'+str(n)+'.png', bbox_inches='tight')
+#plt.legend(loc='best')
+fig1.savefig('bips_toroidal_d'+str(dim)+'_N'+str(N)+'.png', bbox_inches='tight')
 plt.close(fig1)
 
     
