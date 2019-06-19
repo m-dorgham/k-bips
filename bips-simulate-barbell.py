@@ -30,7 +30,7 @@ vary_d = True
 if vary_d:
     n = 10000
     k=2
-    d=3
+    d=4
     simulations_repetition = 20
     max_increase = 0
     longest_process_len = 0
@@ -160,12 +160,8 @@ if vary_d:
         d_avgInfecTime_map[d] = round((sum(infection_times_per_d) / len(infection_times_per_d)))
         d_netIncrease_map[d] = net_increases_per_d
         
-        if d < 0.1*block_size:
-            d += 4
-        elif d < 0.3*block_size:
-            d += 10
-        elif d < 0.6*block_size:
-            d += 20
+        if d < 0.6*block_size:
+            d += 50
         elif d < block_size-1:
             d = block_size-1
         else:
